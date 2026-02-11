@@ -1,0 +1,129 @@
+//author related api requests
+
+###
+POST http://127.0.0.1:5000/authors/register
+Content-Type: application/json
+
+{
+    "firstName": "Author",
+    "lastName": "second",
+    "email": "author2@example.com",
+    "profileImage": "https://example.com/authortwo.jpg",
+    "password": "author two"
+
+
+}
+
+###
+// author login
+POST http://127.0.0.1:5000/common/login
+Content-Type: application/json
+
+{
+    "email": "author2@example.com",
+    "password": "author two"
+}
+
+
+### //post request to create an article by author
+POST http://127.0.0.1:5000/authors/articles
+Content-Type: application/json
+
+{
+    "title": "My first Article",
+    "category": "General",
+    "content": "This is the content of my first article.",
+    "authorId": "698998b6aefc4ed293b10657"
+}
+//get articles by author
+###
+GET http://127.0.0.1:5000/authors/articles/698998b6aefc4ed293b10657
+
+### //edit article by author
+PUT http://127.0.0.1:5000/authors/articles/
+Content-Type: application/json
+
+{
+    "articleId": "698996b9dbe6d1865b67f31a",
+    "authorId": "698996a6dbe6d1865b67f317",
+    "title": "Updated Article Title",
+    "category": "Updated Category",
+    "content": "This is the updated content of the article."
+}
+
+### //soft delete article by author
+DELETE http://127.0.0.1:5000/authors/articles/698996b9dbe6d1865b67f31a
+Content-Type: application/json
+
+{
+    "authorId": "698996a6dbe6d1865b67f317"
+}
+
+//=================================================================================
+//=================================================================================
+//user related api requests
+
+
+###
+// user register
+POST http://127.0.0.1:5000/users/register
+Content-Type: application/json
+
+{
+    "firstName": "User",
+    "lastName": "two",
+    "email": "user2@example.com",
+    "profileImage": "https://example.com/usertwo.jpg",
+    "password": "user two"
+}
+
+###
+// user login
+POST http://127.0.0.1:5000/common/login
+Content-Type: application/json
+
+{
+    "email": "user2@example.com",
+    "password": "user two"
+}
+
+###
+// change password (use token from login response or cookie)
+PUT http://127.0.0.1:5000/common/change-password
+Content-Type: application/json
+
+{
+    "currentPassword": "author two",
+    "newPassword": "author-two"
+}
+
+###
+// list all active articles
+GET http://127.0.0.1:5000/users/articles
+
+###
+// add comment to an article
+POST http://127.0.0.1:5000/users/articles/698998d1aefc4ed293b1065a/comments
+Content-Type: application/json
+
+{
+    "userId": "6989adc1bda535a334a61cd6",
+    "comment": "Nice article!"
+}
+
+
+###
+get http://localhost:5000/test
+
+//=================================================================================
+//=================================================================================
+//admin related api requests
+
+###
+// block author
+PUT http://127.0.0.1:5000/admins/block/698998b6aefc4ed293b10657
+
+###
+// unblock author
+PUT http://127.0.0.1:5000/admins/unblock/698998b6aefc4ed293b10657
+
