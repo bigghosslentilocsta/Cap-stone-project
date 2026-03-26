@@ -4,8 +4,23 @@ import { UserTypeModel } from '../models/UserModel.js';
 
 //register function
 export const register = async (userObj) => {
+// normalize and whitelist allowed fields to avoid strict schema throw
+const normalizedUser = {
+    firstName: userObj.firstName,
+    lastName: userObj.lastName,
+    email: userObj.email,
+    password: userObj.password,
+    role: userObj.role,
+};
+
+// Only add profileImage if it's a valid string (not empty object from file input)
+const profileImg = userObj.profileImage ?? userObj.profileImageUrl;
+if (profileImg && typeof profileImg === 'string' && profileImg.trim()) {
+    normalizedUser.profileImage = profileImg;
+}
+
 //create document
-const userDoc = new UserTypeModel(userObj);
+const userDoc = new UserTypeModel(normalizedUser);
 
 //validate for empty passwords
 await userDoc.validate();
@@ -23,18 +38,35 @@ return newUserObj; //return user data without password
 
 
 //AUTHENTICATE FUNCTION
-export const authenticate = async (email, password) => {
+export const authenticate = async (email, password, selectedRole) => {
+    console.log('Attempting to authenticate:', { email, hasPassword: !!password });
+    
     //check user with email and role
     const user = await UserTypeModel.findOne({ email});
 
+    console.log('User found:', user ? `Yes (${user.email}, role: ${user.role})` : 'No');
+
     if (!user) {
-        throw new Error("Invalid credentials");
+        const err = new Error("wrong credentials");
+        err.status = 401;
+        throw err;
     }
 
     //compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
+    
     if (!isMatch) {
-        throw new Error("Invalid credentials");
+        const err = new Error("wrong credentials");
+        err.status = 401;
+        throw err;
+    }
+
+    // Enforce role selected in login form.
+    if (selectedRole && user.role !== selectedRole) {
+        const err = new Error("unauthorized login");
+        err.status = 401;
+        throw err;
     }
 
     //check isActive status

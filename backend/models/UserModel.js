@@ -29,7 +29,8 @@ const userSchema=new Schema({
     },
     password:{
         type:String,
-        required:[true,"password is required"]
+        required:[true,"password is required"],
+        minlength:[6, "password must be at least 6 characters"]
     }  
 },
 {

@@ -1,6 +1,7 @@
 import exp from 'express'
 import bcrypt from 'bcrypt'
-import { authenticate, verifyToken } from '../services/authService.js'
+import { authenticate } from '../services/authService.js'
+import { verifyToken } from '../middlewares/verifyToken.js'
 import { UserTypeModel } from '../models/UserModel.js'
 export const commonRouter=exp.Router()
 
@@ -10,7 +11,7 @@ commonRouter.post("/login",async(req,res,next)=>{
             //get user obj from req
             let userObj = req.body
             //call authenticate
-            let { token, user } = await authenticate(userObj.email, userObj.password)
+            let { token, user } = await authenticate(userObj.email, userObj.password, userObj.role)
             //save token as httponly cookie
             res.cookie("token", token, { httpOnly: true,
                 sameSite: 'lax',
@@ -55,4 +56,23 @@ commonRouter.put("/change-password", verifyToken, async (req, res, next) => {
         await user.save()
 
         res.status(200).json({ message: 'Password updated successfully' })
-})
+});
+
+//protected route
+commonRouter.get(
+    "/check-auth", 
+    verifyToken("user", "author", "admin"),
+    async (req, res) => {
+        const userId = req.user?.userId
+        const user = await UserTypeModel.findById(userId).select('-password')
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+
+        res.status(200).json({
+            message: "authenticated",
+            user
+        })
+    }
+);

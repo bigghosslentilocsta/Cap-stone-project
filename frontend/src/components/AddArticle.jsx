@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { pageBackground, formCard, formTitle, labelClass, inputClass, formGroup, submitBtn, errorClass } from '../styles/common';
 
 function AddArticle() {
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
+
   const {
     register,
     handleSubmit,
@@ -9,18 +15,40 @@ function AddArticle() {
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log('Article data:', data);
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      setSubmitting(true);
+      setApiError('');
+      console.log('Add article request payload:', data);
+
+      const res = await axios.post('http://localhost:5000/authors/articles', data, {
+        withCredentials: true,
+      });
+
+      console.log('Created article details:', res.data?.payload || res.data);
+
+      toast.success('Article published successfully');
+      reset();
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to publish article';
+      setApiError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8 underline">AddArticle.jsx</h1>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-300 p-8 space-y-6">
-          <div>
+    <div className={pageBackground}>
+      <div className="px-4 py-10 sm:px-6">
+        <div className={formCard}>
+          <h2 className={formTitle}>Create New Article</h2>
+
+        {apiError && <p className={`${errorClass} mb-4`}>{apiError}</p>}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className={formGroup}>
+            <label className={labelClass}>Title</label>
             <input
               type="text"
               {...register('title', {
@@ -28,18 +56,19 @@ function AddArticle() {
                 minLength: { value: 5, message: 'Title must be at least 5 characters' },
                 maxLength: { value: 200, message: 'Title must not exceed 200 characters' },
               })}
-              className="w-full px-4 py-6 bg-gray-400 text-center text-lg placeholder-black focus:outline-none"
-              placeholder="Title"
+              className={inputClass}
+              placeholder="Enter article title"
             />
-            {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>}
+            {errors.title && <p className={errorClass}>{errors.title.message}</p>}
           </div>
 
-          <div>
+          <div className={formGroup}>
+            <label className={labelClass}>Category</label>
             <select
               {...register('category', { required: 'Category is required' })}
-              className="w-full px-4 py-6 bg-gray-400 text-center text-lg focus:outline-none"
+              className={inputClass}
             >
-              <option value="">Category</option>
+              <option value="">Select a category</option>
               <option value="technology">Technology</option>
               <option value="lifestyle">Lifestyle</option>
               <option value="business">Business</option>
@@ -51,32 +80,29 @@ function AddArticle() {
               <option value="sports">Sports</option>
               <option value="other">Other</option>
             </select>
-            {errors.category && <p className="text-red-600 text-sm mt-1">{errors.category.message}</p>}
+            {errors.category && <p className={errorClass}>{errors.category.message}</p>}
           </div>
 
-          <div>
+          <div className={formGroup}>
+            <label className={labelClass}>Content</label>
             <textarea
-              rows="10"
+              rows="8"
               {...register('content', {
                 required: 'Content is required',
                 minLength: { value: 50, message: 'Content must be at least 50 characters' },
                 maxLength: { value: 10000, message: 'Content must not exceed 10000 characters' },
               })}
-              className="w-full px-4 py-6 bg-gray-400 text-center text-lg placeholder-black focus:outline-none resize-none"
-              placeholder="Content"
+              className={`${inputClass} min-h-40 resize-none`}
+              placeholder="Write your article content here..."
             />
-            {errors.content && <p className="text-red-600 text-sm mt-1">{errors.content.message}</p>}
+            {errors.content && <p className={errorClass}>{errors.content.message}</p>}
           </div>
 
-          <div className="text-center">
-            <button
-              type="submit"
-              className="bg-cyan-400 hover:bg-cyan-500 text-black font-bold text-xl py-3 px-12 focus:outline-none"
-            >
-              Publish Article
-            </button>
-          </div>
+          <button type="submit" className={submitBtn} disabled={submitting}>
+            {submitting ? 'Publishing...' : 'Publish Article'}
+          </button>
         </form>
+        </div>
       </div>
     </div>
   );

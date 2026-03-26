@@ -1,19 +1,45 @@
-import jwt from 'jsonwebtoken'
-import {config} from 'dotenv'
-config();
-export const verifyToken = (req, res, next) => {
-    //read the token from req
-    let token = req.cookies.token;
-    console.log("token: ", token)  
-    if (!token) {
-        return res.status(401).json({ message: "Token required" })
+import jwt from 'jsonwebtoken';
+
+function buildMiddleware(allowedRoles = []) {
+    return async (req, res, next) => {
+        try {
+            const signedToken = req.cookies?.token;
+            if (!signedToken) {
+                return res.status(401).json({ message: "unauthorized request.please login first" });
+            }
+
+            const decodedToken = jwt.verify(signedToken, process.env.JWT_SECRET);
+
+            if (allowedRoles.length > 0 && !allowedRoles.includes(decodedToken.role)) {
+                return res.status(403).json({ message: "Forbidden.you dont have acces to this article" });
+            }
+
+            req.user = decodedToken;
+            next();
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.status(401).json({ message: "session expired" });
+            }
+            if (err.name === "JsonWebTokenError") {
+                return res.status(401).json({ message: "invalid token.please check" });
+            }
+            next(err);
+        }
+    };
+}
+
+export const verifyToken = (...allowedRoles) => {
+    // Supports both usages:
+    // 1) verifyToken('author') as a middleware factory
+    // 2) verifyToken directly as middleware (falls back to no role restriction)
+    if (
+        allowedRoles.length === 3 &&
+        typeof allowedRoles[0] === 'object' &&
+        typeof allowedRoles[1] === 'object' &&
+        typeof allowedRoles[2] === 'function'
+    ) {
+        return buildMiddleware()(allowedRoles[0], allowedRoles[1], allowedRoles[2]);
     }
-    //verify the validity of token
-    let decodedToken=jwt.verify(token, process.env.JWT_SECRET)
-    if (!decodedToken) {
-        return res.status(401).json({ message: "Invalid token" })
-    }
-    //forward the req to next middleware or route handler
-    req.user=decodedToken
-    next()
+
+    return buildMiddleware(allowedRoles);
 };

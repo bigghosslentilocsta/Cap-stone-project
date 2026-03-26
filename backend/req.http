@@ -5,11 +5,11 @@ POST http://127.0.0.1:5000/authors/register
 Content-Type: application/json
 
 {
-    "firstName": "Author",
-    "lastName": "second",
-    "email": "author2@example.com",
+    "firstName": "pavan",
+    "lastName": "kumar",
+    "email": "pavan@example.com",
     "profileImage": "https://example.com/authortwo.jpg",
-    "password": "author two"
+    "password": "pavan"
 
 
 }
@@ -20,8 +20,8 @@ POST http://127.0.0.1:5000/common/login
 Content-Type: application/json
 
 {
-    "email": "author2@example.com",
-    "password": "author two"
+    "email": "pavan@example.com",
+    "password": "pavan"
 }
 
 
@@ -30,10 +30,9 @@ POST http://127.0.0.1:5000/authors/articles
 Content-Type: application/json
 
 {
-    "title": "My first Article",
-    "category": "General",
-    "content": "This is the content of my first article.",
-    "authorId": "698998b6aefc4ed293b10657"
+    "title": "ARTICLE_3",
+    "category": "Technology",
+    "content": "this article is all about technology......"
 }
 //get articles by author
 ###
@@ -45,19 +44,14 @@ Content-Type: application/json
 
 {
     "articleId": "698996b9dbe6d1865b67f31a",
-    "authorId": "698996a6dbe6d1865b67f317",
     "title": "Updated Article Title",
     "category": "Updated Category",
     "content": "This is the updated content of the article."
 }
 
 ### //soft delete article by author
-DELETE http://127.0.0.1:5000/authors/articles/698996b9dbe6d1865b67f31a
+PATCH http://127.0.0.1:5000/authors/articles/698996b9dbe6d1865b67f31a
 Content-Type: application/json
-
-{
-    "authorId": "698996a6dbe6d1865b67f317"
-}
 
 //=================================================================================
 //=================================================================================
@@ -70,9 +64,9 @@ POST http://127.0.0.1:5000/users/register
 Content-Type: application/json
 
 {
-    "firstName": "User",
-    "lastName": "two",
-    "email": "user2@example.com",
+    "firstName": "Sanjana",
+    "lastName": "G",
+    "email": "Sanjana@example.com",
     "profileImage": "https://example.com/usertwo.jpg",
     "password": "user two"
 }
@@ -83,7 +77,7 @@ POST http://127.0.0.1:5000/common/login
 Content-Type: application/json
 
 {
-    "email": "user2@example.com",
+    "email": "Sanjana@example.com",
     "password": "user two"
 }
 
@@ -103,12 +97,13 @@ GET http://127.0.0.1:5000/users/articles
 
 ###
 // add comment to an article
-POST http://127.0.0.1:5000/users/articles/698998d1aefc4ed293b1065a/comments
+POST http://127.0.0.1:5000/users/articles/comments
 Content-Type: application/json
 
 {
+    "articleId": "698998d1aefc4ed293b1065a",
     "userId": "6989adc1bda535a334a61cd6",
-    "comment": "Nice article!"
+    "comment": "Nice article again !"
 }
 
 
