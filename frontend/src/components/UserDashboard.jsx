@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Link } from 'react-router'
 import { pageBackground, pageWrapper, pageTitleClass, bodyText, articleGrid, articleCardClass, articleTitle, articleExcerpt, articleMeta, emptyStateClass, errorClass, loadingClass } from '../styles/common'
+import api from '../api'
 
 function UserDashboard() {
   const [articles, setArticles] = useState([])
@@ -12,9 +12,7 @@ function UserDashboard() {
     const fetchArticles = async () => {
       try {
         setLoading(true)
-        const res = await axios.get('http://localhost:5000/users/articles', {
-          withCredentials: true
-        })
+        const res = await api.get('/users/articles')
         setArticles(res.data.payload || [])
         setError(null)
       } catch (err) {

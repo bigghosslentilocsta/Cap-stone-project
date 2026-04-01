@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
-import axios from 'axios'
 import { pageBackground, formCard, formTitle, labelClass, inputClass, submitBtn, loadingClass, errorClass } from '../styles/common'
+import api from '../api'
 
 function Register() {
   const navigate = useNavigate();
@@ -39,9 +39,7 @@ function Register() {
         }
         
       if(newUser.role==="user"){
-        let resObj=await axios.post("http://localhost:5000/users/register",formData, {
-          withCredentials: true
-        })
+        let resObj=await api.post("/users/register",formData)
         let res=resObj.data
         console.log('User registration response:', res)
         if(resObj.status===201){
@@ -49,9 +47,7 @@ function Register() {
         }
       }
     if(newUser.role==="author"){
-      let resObj=await axios.post("http://localhost:5000/authors/register",formData, {
-        withCredentials: true
-      })
+      let resObj=await api.post("/authors/register",formData)
         let res=resObj.data
         console.log('Author registration response:', res)
         if(resObj.status===201){

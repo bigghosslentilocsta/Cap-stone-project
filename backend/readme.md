@@ -1,104 +1,45 @@
 # Blog Application Backend
 
-A multi-role blogging platform backend built with Node.js, Express, and MongoDB, supporting three user roles: Users, Authors, and Admins.
+Node.js + Express API for a multi-role blog platform.
 
-## Features
+## Run Modes
 
-### User Roles
+- Development: `npm run dev`
+- Production: `npm start`
 
-**Users**
-- Register and authenticate
-- Browse and read articles
-- Comment on articles
+## Environment Setup
 
-**Authors**
-- Register and authenticate as content creators
-- Create, edit, and publish articles
-- View their own articles
-- Soft delete articles (marking as inactive)
+1. Copy `.env.example` to `.env`
+2. Fill required variables:
 
-**Admins**
-- Authenticate with admin privileges
-- View all articles across the platform
-- Block or unblock authors
-- Moderate content
+```
+PORT=5000
+DB_URL=your_mongodb_connection_string
+JWT_SECRET=your_strong_random_secret
+NODE_ENV=development
+CLIENT_ORIGIN=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173
+TRUST_PROXY=false
 
-## Tech Stack
+CLOUD_NAME=your_cloudinary_cloud_name
+API_KEY=your_cloudinary_api_key
+API_SECRET=your_cloudinary_api_secret
+```
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose ODM
-- **Environment Management**: dotenv
+### Notes
 
-## API Routes
+- `CORS_ORIGINS` supports comma-separated values for multiple frontend domains.
+- In production (`NODE_ENV=production`), auth cookies are sent as `Secure` + `SameSite=None`.
+- If behind a reverse proxy (Render, Nginx, Azure, etc.), set `TRUST_PROXY=true`.
 
-### User Routes (`/users`)
-- User registration
-- User authentication
-- Read articles
-- Comment on articles
+## Health Endpoint
 
-### Author Routes (`/authors`)
-- Author registration
-- Author authentication
-- Create new articles
-- Read author's articles
-- Edit articles
-- Delete articles (soft delete)
+- `GET /health` returns `200` when service is up.
 
-### Admin Routes (`/admins`)
-- Admin authentication
-- Read all articles
-- Block/unblock authors
+## Deploy Checklist
 
-## Database Schema
-
-### User Schema
-- firstName (String, required)
-- lastName (String, optional)
-- email (String, required)
-- profileImage (String, optional)
-- role (Enum: admin, user, author)
-- isActive (Boolean, default: true)
-- password (String, required)
-- Timestamps: createdAt, updatedAt
-
-### Article Schema
-- author (ObjectId ref User, required)
-- title (String, required)
-- category (String, required)
-- content (String, required)
-- comments (Array of user comments)
-- isArticleActive (Boolean, default: true)
-- Timestamps: createdAt, updatedAt
-
-### Comment Schema
-- user (ObjectId ref User)
-- comment (String)
-
-## Setup
-
-1. Install dependencies: `npm install`
-2. Create `.env` file with:
-   ```
-   DB_URL=your_mongodb_connection_string
-   PORT=your_port_number
-   ```
-3. Start server: `node server.js`
-
-## Development Process
-
-1. Initialize git repository: `git init`
-2. Add .gitignore file
-3. Create .env file for environment variables
-4. Generate package.json: `npm init -y`
-5. Create Express app
-6. Connect to MongoDB
-7. Add middlewares (body parser, error handling)
-8. Design schemas and create models
-9. Design REST APIs for all resources
-
-## working architecture of blog app
-
-![alt text](<WhatsApp Image 2026-02-10 at 9.28.43 AM.jpeg>)
-
+- Use managed MongoDB URI in `DB_URL`
+- Set strong `JWT_SECRET`
+- Set production frontend origin(s) in `CORS_ORIGINS`
+- Set `NODE_ENV=production`
+- Add HTTPS at hosting/proxy level

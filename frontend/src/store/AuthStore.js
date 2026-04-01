@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
 import toast from "react-hot-toast";
+import api from "../api";
 
 export const useAuth = create((set) => ({
     currentUser: null,
@@ -11,9 +11,7 @@ export const useAuth = create((set) => ({
   // GET CURRENT USER DETAILS
     getCurrentUserDetails: async () => {
       try {
-        const res = await axios.get("http://localhost:5000/common/check-auth", {
-          withCredentials: true,
-        });
+        const res = await api.get("/common/check-auth");
 
         set({
           currentUser: res.data.user,
@@ -38,10 +36,9 @@ export const useAuth = create((set) => ({
         set({ loading: true, error: null });
 
       // API request
-        const res = await axios.post(
-        "http://localhost:5000/common/login",
-        { email, password, role },
-        { withCredentials: true }
+        const res = await api.post(
+        "/common/login",
+        { email, password, role }
         );
 
       // update state
@@ -80,7 +77,7 @@ export const useAuth = create((set) => ({
   // LOGOUT FUNCTION
     logout: async () => {
     try {
-      await axios.post("http://localhost:5000/common/logout", {}, { withCredentials: true });
+      await api.post("/common/logout", {});
       toast.success("Logged out successfully!", { duration: 3000 });
     } catch (err) {
       console.log("logout err is", err);
@@ -96,9 +93,7 @@ export const useAuth = create((set) => ({
     checkAuthFromCookie: async () => {
       set({ loading: true, error: null });
       try {
-        const res = await axios.get("http://localhost:5000/common/check-auth", {
-          withCredentials: true,
-        });
+        const res = await api.get("/common/check-auth");
 
         set({
           currentUser: res.data.user,

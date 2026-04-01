@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { pageBackground, formCard, formTitle, labelClass, inputClass, formGroup, submitBtn, errorClass } from '../styles/common';
+import api from '../api';
 
 function AddArticle() {
   const [submitting, setSubmitting] = useState(false);
@@ -21,9 +21,7 @@ function AddArticle() {
       setApiError('');
       console.log('Add article request payload:', data);
 
-      const res = await axios.post('http://localhost:5000/authors/articles', data, {
-        withCredentials: true,
-      });
+      const res = await api.post('/authors/articles', data);
 
       console.log('Created article details:', res.data?.payload || res.data);
 

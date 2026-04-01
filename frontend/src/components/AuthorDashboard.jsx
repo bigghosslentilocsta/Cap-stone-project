@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
-import axios from 'axios'
 import { Link } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import { pageBackground, pageWrapper, pageTitleClass, bodyText, articleGrid, articleCardClass, articleTitle, articleExcerpt, articleMeta, emptyStateClass, errorClass, loadingClass, tagClass } from '../styles/common'
+import api from '../api'
 
 function AuthorDashboard() {
   const { currentUser } = useContext(AuthContext)
@@ -24,9 +24,7 @@ function AuthorDashboard() {
     try {
       setLoading(true)
       setError('')
-      const res = await axios.get(`http://localhost:5000/authors/articles/${authorId}?includeInactive=true`, {
-        withCredentials: true,
-      })
+      const res = await api.get(`/authors/articles/${authorId}?includeInactive=true`)
       setArticles(res.data?.payload || [])
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load your articles')
@@ -58,15 +56,14 @@ function AuthorDashboard() {
     try {
       if (!editArticleId) return
       setActionLoading(true)
-      await axios.put(
-        'http://localhost:5000/authors/articles',
+      await api.put(
+        '/authors/articles',
         {
           articleId: editArticleId,
           title: editForm.title,
           category: editForm.category,
           content: editForm.content,
-        },
-        { withCredentials: true }
+        }
       )
       cancelEdit()
       await fetchOwnArticles()
@@ -82,7 +79,7 @@ function AuthorDashboard() {
       const confirmed = window.confirm('Delete this article? You can restore it later.')
       if (!confirmed) return
       setActionLoading(true)
-      await axios.patch(`http://localhost:5000/authors/articles/${articleId}`, {}, { withCredentials: true })
+      await api.patch(`/authors/articles/${articleId}`, {})
       await fetchOwnArticles()
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete article')
@@ -94,7 +91,7 @@ function AuthorDashboard() {
   const restoreArticle = async (articleId) => {
     try {
       setActionLoading(true)
-      await axios.patch(`http://localhost:5000/authors/articles/${articleId}/restore`, {}, { withCredentials: true })
+      await api.patch(`/authors/articles/${articleId}/restore`, {})
       await fetchOwnArticles()
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to restore article')

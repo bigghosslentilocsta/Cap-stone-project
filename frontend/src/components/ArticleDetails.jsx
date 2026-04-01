@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import axios from 'axios'
 import { Link, useParams } from 'react-router'
 import AuthContext from '../context/AuthContext'
+import api from '../api'
 import {
   pageBackground,
   pageWrapper,
@@ -32,9 +32,7 @@ function ArticleDetails() {
       setLoading(true)
       setError('')
 
-      const res = await axios.get(`http://localhost:5000/users/articles/${articleId}`, {
-        withCredentials: true,
-      })
+      const res = await api.get(`/users/articles/${articleId}`)
 
       setArticle(res.data?.payload || null)
     } catch (err) {
@@ -67,14 +65,13 @@ function ArticleDetails() {
 
       setCommentLoading(true)
 
-      await axios.post(
-        'http://localhost:5000/users/articles/comments',
+      await api.post(
+        '/users/articles/comments',
         {
           articleId,
           comment: trimmedComment,
           userId: currentUser._id,
-        },
-        { withCredentials: true }
+        }
       )
 
       setCommentText('')

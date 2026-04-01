@@ -5,6 +5,16 @@ import { verifyToken } from '../middlewares/verifyToken.js'
 import { UserTypeModel } from '../models/UserModel.js'
 export const commonRouter=exp.Router()
 
+function getCookieOptions() {
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    return {
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
+    }
+}
+
 //login
 commonRouter.post("/login",async(req,res,next)=>{
     try {
@@ -13,10 +23,7 @@ commonRouter.post("/login",async(req,res,next)=>{
             //call authenticate
             let { token, user } = await authenticate(userObj.email, userObj.password, userObj.role)
             //save token as httponly cookie
-            res.cookie("token", token, { httpOnly: true,
-                sameSite: 'lax',
-                secure: false
-            })
+            res.cookie("token", token, getCookieOptions())
             //send res
             res.status(200).json({ message: 'User authenticated', user, token })
         } catch (err) {
@@ -26,11 +33,7 @@ commonRouter.post("/login",async(req,res,next)=>{
 
 //logout
 commonRouter.post("/logout",async(req,res,next)=>{
-     res.clearCookie("token", {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: false
-    })
+    res.clearCookie("token", getCookieOptions())
     res.status(200).json({ message: 'Logged out successfully' })
 });
 

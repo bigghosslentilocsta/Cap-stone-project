@@ -11,11 +11,29 @@ import cors from 'cors'
 
 const app=exp()
 
-app.use(cors({origin:["http://localhost:5173"], credentials: true}))
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1)
+}
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+)
 
 app.use(exp.json())
 
 app.use(cookieParser())
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' })
+})
 
 // Register route handlers for different user roles
 app.use('/users', userRoute)
@@ -26,12 +44,17 @@ app.use('/common', commonRouter)
 // Connect to MongoDB and start server
 async function connectDB() {
     try {
+    if (!process.env.DB_URL) {
+      throw new Error('DB_URL is required in environment variables')
+    }
+
         await connect(process.env.DB_URL)
         console.log("DB connected") 
         
         // Start HTTP server after successful DB connection
-        app.listen(process.env.PORT,()=>{
-            console.log(process.env.PORT,"port connected")
+    const port = Number(process.env.PORT) || 5000
+    app.listen(port,()=>{
+      console.log(port,"port connected")
         })
     } catch(err){
         console.log("DB connection failed", err)
@@ -42,7 +65,7 @@ connectDB()
 
 //dealing with invalid path
 app.use((req,res,next)=> {
-    res.json({message: `${req.url}is invalid path`});
+  res.status(404).json({message: `${req.url} is invalid path`});
 });
 
 // Global error handling middleware
