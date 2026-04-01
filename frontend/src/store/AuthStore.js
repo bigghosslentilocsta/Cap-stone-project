@@ -41,6 +41,11 @@ export const useAuth = create((set) => ({
         { email, password, role }
         );
 
+      // store token in localStorage for cross-domain requests
+      if (res.data.token) {
+        localStorage.setItem('authToken', res.data.token)
+      }
+
       // update state
         set({
         currentUser: res.data.user,
@@ -78,6 +83,8 @@ export const useAuth = create((set) => ({
     logout: async () => {
     try {
       await api.post("/common/logout", {});
+      // clear token from localStorage
+      localStorage.removeItem('authToken')
       toast.success("Logged out successfully!", { duration: 3000 });
     } catch (err) {
       console.log("logout err is", err);

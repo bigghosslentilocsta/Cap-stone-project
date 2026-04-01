@@ -3,7 +3,17 @@ import jwt from 'jsonwebtoken';
 function buildMiddleware(allowedRoles = []) {
     return async (req, res, next) => {
         try {
-            const signedToken = req.cookies?.token;
+            // Try to get token from cookies first, then from Authorization header
+            let signedToken = req.cookies?.token;
+            
+            if (!signedToken) {
+                // Check for Authorization: Bearer <token> header
+                const authHeader = req.headers.authorization;
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    signedToken = authHeader.substring(7);
+                }
+            }
+            
             if (!signedToken) {
                 return res.status(401).json({ message: "unauthorized request.please login first" });
             }
